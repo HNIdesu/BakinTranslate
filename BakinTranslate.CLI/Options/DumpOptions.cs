@@ -10,6 +10,6 @@ namespace BakinTranslate.CLI.Options
         [Value(1, Required = true, MetaName = "unpack_directory")]
         public string UnpackDirectory { get; set; }
         [Option('o', "output", Required = false)]
-        public string OutputDirectory { get; set; }
+        public string OutputPath { get; set; }
     }
 }
