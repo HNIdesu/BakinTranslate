@@ -11,15 +11,22 @@ namespace bakinplayer
         [STAThread]
         static void Main()
         {
-            if (Environment.GetEnvironmentVariable("CONTINUE") == "true")
-            {
-                AppDomain.CurrentDomain.ExecuteAssembly("data\\bakinplayer.exe.bak");
-                return;
-            }
-            const string dicName = "dic.txt";
             const string errorLogName = "error.log";
             if (File.Exists(errorLogName))
                 File.Delete(errorLogName);
+            if (Environment.GetEnvironmentVariable("CONTINUE") == "true")
+            {
+                try
+                {
+                    AppDomain.CurrentDomain.ExecuteAssembly("data\\bakinplayer.exe.bak");
+                }
+                catch (Exception ex)
+                {
+                    File.WriteAllText("error.log", ex.ToString());
+                }
+                return;
+            }
+            const string dicName = "dic.txt";
             try
             {
                 Application.EnableVisualStyles();
