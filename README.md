@@ -34,6 +34,12 @@
 6. **Launch the game**  
    Start the game using the game launcher. Translations should now take effect.
 
+
+## Troubleshooting
+If the game fails to launch or encounters unexpected behavior, please check the error.log file located in the same directory as the game executable. This file may contain useful information to help diagnose and resolve the issue.
+
+If you're unsure how to interpret the log or need further assistance, feel free to open an issue on the GitHub repository with a detailed description and a copy of the error.log content.
+
 ## License
 
 This project is licensed under the [MIT License](./LICENSE).
