@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,13 @@ namespace bakinplayer
 {
     internal static class Program
     {
+
+        internal static string JoinCommandLineArguments(IEnumerable<string> args)
+        {
+            return string.Join(" ", args.Select(arg =>
+                arg.Contains(" ") ? $"\"{arg}\"" : arg));
+        }
+
         [STAThread]
         static void Main()
         {
@@ -35,7 +43,7 @@ namespace bakinplayer
                 args.AddRange(new[] { "/Dic", "/L=EN" });
                 var tempDir = args.FirstOrDefault(it => it.StartsWith("/TMP="))?.Split('|', '=')[3];
                 File.Copy(Path.Combine("data", dicName), Path.Combine(tempDir, dicName));
-                var processStartInfo = new ProcessStartInfo(args[0], string.Join(" ", args.Skip(1)));
+                var processStartInfo = new ProcessStartInfo(args[0], JoinCommandLineArguments(args.Skip(1)));
                 processStartInfo.EnvironmentVariables.Add("CONTINUE", "true");
                 processStartInfo.UseShellExecute = false;
                 Process.Start(processStartInfo);
