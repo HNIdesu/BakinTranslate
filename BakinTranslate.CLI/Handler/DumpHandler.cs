@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace BakinTranslate.CLI.Handler
@@ -18,6 +19,13 @@ namespace BakinTranslate.CLI.Handler
             foreach (var key in Helper.ConvertRawStringToKeys(__result))
                 _KeySet.Add(key);
         }
+        private static IEnumerable<CodeInstruction> ReadStringTranspiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var target = AccessTools.Method(typeof(BinaryReader), "ReadString");
+            yield return new CodeInstruction(OpCodes.Ldarg_0);
+            yield return new CodeInstruction(OpCodes.Call, target);
+            yield return new CodeInstruction(OpCodes.Ret);
+        }
 
         public void Handle(DumpOptions options)
         {
@@ -28,13 +36,13 @@ namespace BakinTranslate.CLI.Handler
             assembly.GetType("Yukar.Common.Resource.ResourceItem").DeclaredField("sClipboardLoad").SetValue(null, true);
             assembly.GetType("Yukar.Common.Resource.ResourceItem").DeclaredField("sCurrentSourceMode")
                 .SetValue(null, Enum.Parse(assembly.GetType("Yukar.Common.Resource.ResourceSource"), "RES_USER"));
-            // get raw string
-            assembly.GetType("Yukar.Common.BinaryReaderWrapper").DeclaredField("sTemporaryIgnore").SetValue(null, true);
             CatalogWrapper.CatalogType = assembly.GetType("Yukar.Common.Catalog");
             ScriptWrapper.ScriptType = assembly.GetType("Yukar.Common.Rom.Script");
             CatalogWrapper.sResourceDir = Path.Combine(unpackDirectory, "unpack.zip\\");
             var harmony = new Harmony("YUKAR.COMMON");
-            harmony.Patch(assembly.GetType("Yukar.Common.BinaryReaderWrapper").GetMethod("ReadString"),
+            harmony.Patch(
+                Helper.GetMethod(assembly.GetType("Yukar.Common.BinaryReaderWrapper"), "ReadString"),
+                transpiler: typeof(DumpHandler).GetDeclaredMethods().First(it => it.Name == "ReadStringTranspiler"),
                 postfix: typeof(DumpHandler).GetDeclaredMethods().First(it => it.Name == "ReadStringPostfix"));
             var catalog = CatalogWrapper.init();
             catalog.load();
